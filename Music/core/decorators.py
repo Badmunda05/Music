@@ -1,0 +1,190 @@
+from functools import wraps
+
+from config import Config
+from Music.utils.admins import get_auth_users, get_user_rights
+from Music.utils.exceptions import PbxBotException
+from Music.utils.play import player
+from .database import db
+
+
+on_mode = ["on", "enable", "yes", "true"]
+
+
+# Check if private mode is enabled or not
+def check_mode(func):
+    
+    @wraps(func)
+    async def decorated(client, message):
+        
+        user_id = message.from_user.id
+        
+        if (Config.PRIVATE_MODE).lower() in on_mode:
+            if user_id not in Config.SUDO_USERS:
+                return
+        
+        await func(client, message)
+    
+    return decorated
+
+
+# Allow admins only
+def AdminWrapper(func):
+    
+    @wraps(func)
+    async def decorated(client, message):
+        
+        try:
+            await message.delete()
+        
+        except:
+            pass
+        
+        if message.sender_chat:
+            return await message.reply_text(
+                "sᴇᴇᴍs ʟɪᴋᴇ ʏᴏᴜ ᴀʀᴇ ᴀɴ ᴀɴᴏɴʏᴍᴏᴜs ᴀᴅᴍɪɴ. ᴘʟᴇᴀsᴇ ʀᴇᴠᴇʀᴛ ʙᴀᴄᴋ ᴛᴏ ɴᴏʀᴍᴀʟ ᴛᴏ ᴜsᴇ ᴛʜɪs ᴄᴏᴍᴍᴀɴᴅ."
+            )
+        
+        chat_id = message.chat.id
+        
+        if message.from_user.id not in Config.SUDO_USERS:
+            if not await get_user_rights(chat_id, message.from_user.id):
+                return await message.reply_text(
+                    "ʏᴏᴜ ᴅᴏɴ'ᴛ ʜᴀᴠᴇ ᴇɴᴏᴜɢʜ ʀɪɢʜᴛs ᴛᴏ ᴜsᴇ ᴛʜɪs ᴄᴏᴍᴍᴀɴᴅ! ʏᴏᴜ ɴᴇᴇᴅ ᴛᴏ ʙᴇ ᴀɴ ᴀᴅᴍɪɴ ᴡɪᴛʜ ᴍᴀɴᴀɢᴇ ᴠᴏɪᴄᴇ ᴄʜᴀᴛs ᴘᴇʀᴍɪssɪᴏɴ ᴛᴏ ᴜsᴇ ᴛʜɪs ᴄᴏᴍᴍᴀɴᴅ."
+                )
+        
+        return await func(client, message)
+    
+    return decorated
+
+
+# Allow admins and auth users only
+def AuthWrapper(func):
+    
+    @wraps(func)
+    async def decorated(client, message):
+        
+        try:
+            await message.delete()
+        
+        except:
+            pass
+        
+        if message.sender_chat:
+            return await message.reply_text(
+                "sᴇᴇᴍs ʟɪᴋᴇ ʏᴏᴜ ᴀʀᴇ ᴀɴ ᴀɴᴏɴʏᴍᴏᴜs ᴀᴅᴍɪɴ. ᴘʟᴇᴀsᴇ ʀᴇᴠᴇʀᴛ ʙᴀᴄᴋ ᴛᴏ ɴᴏʀᴍᴀʟ ᴛᴏ ᴜsᴇ ᴛʜɪs ᴄᴏᴍᴍᴀɴᴅ."
+            )
+        
+        chat_id = message.chat.id
+        
+        if not await db.is_active_vc(chat_id):
+            return await message.reply_text("ɴᴏᴛʜɪɴɢ ɪs sᴛʀᴇᴀᴍɪɴɢ ᴏɴ ᴛʜᴇ ᴠᴏɪᴄᴇ ᴄʜᴀᴛ!")
+        
+        is_authchat = await db.is_authchat(message.chat.id)
+        
+        if not is_authchat:
+            if message.from_user.id not in Config.SUDO_USERS:
+                try:
+                    admins = await get_auth_users(chat_id)
+                
+                except Exception as e:
+                    raise PbxBotException(f"[ᴘʙxʙᴏᴛᴇxᴄᴇᴘᴛɪᴏɴ]: {e}")
+                
+                if not admins:
+                    return await message.reply_text(
+                        "ɴᴇᴇᴅ ᴛᴏ ʀᴇꜰʀᴇsʜ ᴀᴅᴍɪɴ ʟɪsᴛ. ᴄʟɪᴄᴋ ʜᴇʀᴇ -> /reload"
+                    )
+                
+                else:
+                    if message.from_user.id not in admins:
+                        return await message.reply_text(
+                            "ᴛʜɪs ᴄᴏᴍᴍᴀɴᴅ ɪs ᴏɴʟʏ ꜰᴏʀ ᴀᴜᴛʜᴏʀɪᴢᴇᴅ ᴜsᴇʀs ᴀɴᴅ ᴀᴅᴍɪɴs!"
+                        )
+        
+        return await func(client, message)
+    
+    return decorated
+
+
+# Allow normal users only
+def UserWrapper(func):
+    
+    @wraps(func)
+    async def decorated(client, message):
+        
+        try:
+            await message.delete()
+        
+        except:
+            pass
+        
+        if message.sender_chat:
+            return await message.reply_text(
+                "sᴇᴇᴍs ʟɪᴋᴇ ʏᴏᴜ ᴀʀᴇ ᴀɴ ᴀɴᴏɴʏᴍᴏᴜs ᴀᴅᴍɪɴ. ᴘʟᴇᴀsᴇ ʀᴇᴠᴇʀᴛ ʙᴀᴄᴋ ᴛᴏ ɴᴏʀᴍᴀʟ ᴛᴏ ᴜsᴇ ᴛʜɪs ᴄᴏᴍᴍᴀɴᴅ."
+            )
+        
+        return await func(client, message)
+    
+    return decorated
+
+
+# Wrapper to check and return context
+def PlayWrapper(func):
+    
+    @wraps(func)
+    async def decorated(client, message):
+        
+        try:
+            await message.delete()
+        
+        except:
+            pass
+        
+        if message.sender_chat:
+            return await message.reply_text(
+                "sᴇᴇᴍs ʟɪᴋᴇ ʏᴏᴜ ᴀʀᴇ ᴀɴ ᴀɴᴏɴʏᴍᴏᴜs ᴀᴅᴍɪɴ. ᴘʟᴇᴀsᴇ ʀᴇᴠᴇʀᴛ ʙᴀᴄᴋ ᴛᴏ ɴᴏʀᴍᴀʟ ᴛᴏ ᴜsᴇ ᴛʜɪs ᴄᴏᴍᴍᴀɴᴅ."
+            )
+        
+        video = forceplay = False
+        url = await player.get_url(message)
+        
+        if message.reply_to_message:
+            tg_audio = (
+                message.reply_to_message.audio or message.reply_to_message.voice or None
+            )
+            tg_video = (
+                message.reply_to_message.video
+                or message.reply_to_message.document
+                or None
+            )
+        
+        else:
+            tg_audio = tg_video = None
+        
+        if not tg_audio and not tg_video and not url:
+            if not len(message.command) >= 2:
+                return await message.reply_text(
+                    "ʀᴇᴘʟʏ ᴛᴏ ᴀɴ ᴀᴜᴅɪᴏ/ᴠɪᴅᴇᴏ ꜰɪʟᴇ ᴏʀ ʏᴏᴜᴛᴜʙᴇ ʟɪɴᴋ ᴛᴏ ᴘʟᴀʏ ɪᴛ!"
+                )
+        
+        if message.command[0][0] == "v":
+            video = True
+        
+        elif message.command[0][0] == "f":
+            forceplay = True
+            if message.command[0][1] == "v":
+                video = True
+        
+        if tg_video:
+            video = True
+        
+        context = {
+            "is_video": video,
+            "is_force": forceplay,
+            "is_url": url,
+            "is_tgaudio": tg_audio,
+            "is_tgvideo": tg_video,
+        }
+        
+        return await func(client, message, context)
+    
+    return decorated
