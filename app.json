@@ -1,0 +1,103 @@
+{
+	"name": "Pbxmusicbot",
+	"description": "a telegram music bot for voice chats, crafted by badmunda with python, pyrogram, and pytgcalls",
+	"logo": "https://files.catbox.moe/9k3z7q.jpg",
+	"keywords": [
+		"telegram",
+		"musicbot",
+		"python",
+		"pyrogram",
+		"pytgcalls",
+		"pbxbot",
+		"voicechat",
+		"musicstreaming",
+		"modular",
+		"productivity"
+	],
+	"repository": "https://github.com/badmunda05/music",
+	"env": {
+		"API_HASH": {
+			"description": "fetch this from my.telegram.org",
+			"value": ""
+		},
+		"API_ID": {
+			"description": "obtain this from my.telegram.org",
+			"value": ""
+		},
+		"BOT_NAME": {
+			"description": "bot name for thumbnail display (use plain text only)",
+			"value": "@pbxmusicbot"
+		},
+		"BOT_TOKEN": {
+			"description": "get bot token from @botfather",
+			"value": ""
+		},
+		"DATABASE_URL": {
+			"description": "mongodb connection url",
+			"value": ""
+		},
+		"LOGGER_ID": {
+			"description": "channel or group id for logging messages",
+			"value": ""
+		},
+		"OWNER_ID": {
+			"description": "your telegram user id",
+			"value": ""
+		},
+		"PBXBOT_SESSION": {
+			"description": "pyrogram session string for pbx music bot",
+			"value": ""
+		},
+		"HEROKU_API": {
+			"description": "reveal api key from heroku dashboard for updates",
+			"value": ""
+		},
+		"HEROKU_APP": {
+			"description": "app name from heroku for updater functionality",
+			"value": ""
+		},
+		"YOUR_API_KEY": {
+			"description": "custom api key for streaming",
+			"value": ""
+		},
+		"YOUR_API_URL": {
+			"description": "custom api url for streaming",
+			"value": ""
+		},
+		"COOKIES_URL": {
+			"description": "link to cookies file, if needed",
+			"value": "https://raw.githubusercontent.com/"
+		},
+		"USE_API": {
+			"description": "enable api streaming with true, disable with false",
+			"value": "false"
+		},
+		"USE_COOKIES": {
+			"description": "use cookies.txt for streaming if true",
+			"value": "true"
+		},
+		"UPSTREAM_BRANCH": {
+			"description": "git branch for updates (e.g., main or master)",
+			"value": "bad"
+		},
+		"UPSTREAM_REPO": {
+			"description": "repository url without .git",
+			"value": "https://github.com/badmunda05/music"
+		},
+		"GITHUB_TOKEN": {
+			"description": "github token for private repositories",
+			"value": ""
+		}
+	},
+	"buildpacks": [
+		{
+			"url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest"
+		},
+		{
+			"url": "https://github.com/heroku/heroku-buildpack-nodejs"
+		},
+		{
+			"url": "heroku/python"
+		}
+	]
+}
