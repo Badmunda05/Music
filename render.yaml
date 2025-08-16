@@ -1,0 +1,40 @@
+services:
+  - type: web
+    name: Pbxmusic
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python __main__.py
+    envVars:
+      - key: API_HASH
+        value: your api hash
+      - key: API_ID
+        value: your api id
+      - key: BOT_TOKEN
+        value: your bot token
+      - key: DATABASE_URL
+        value: mongodb url
+      - key: PBXBOT_SESSION
+        value: pbx music bot pyrogram session string
+      - key: LOGGER_ID
+        value: telegram group id
+      - key: OWNER_ID
+        value: your id
+      - key: YOUR_API_KEY
+        value: your custom api key
+      - key: YOUR_API_URL
+        value: your custom api url
+      - key: COOKIES_URL
+        value: https://raw.githubusercontent.com/
+      - key: USE_API
+        value: False
+      - key: USE_COOKIES
+        value: True
+      - key: UPSTREAM_BRANCH
+        value: Bad
+      - key: UPSTREAM_REPO
+        value: https://github.com/Badmunda05/Music
+      - key: GITHUB_TOKEN
+        value: ""
+      - key: PYTHON_VERSION
+        value: 3.9.6
