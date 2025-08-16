@@ -46,11 +46,10 @@ async def new_users(_, msg: Message):
 
 @PbxBot.app.on_message(filters.group, group=3)
 async def new_chats(_, msg: Message):
-    
     chat_id = msg.chat.id
+    BOT_USERNAME = PbxBot.app.username
     
     if not await db.is_chat_exist(chat_id):
-        BOT_USERNAME = PbxBot.app.username
         await db.add_chat(chat_id)
         
         if Config.LOGGER_ID:
@@ -61,6 +60,31 @@ async def new_chats(_, msg: Message):
         else:
             LOGS.info(
                 f"#ɴᴇᴡᴄʜᴀᴛ: \n\nᴄʜᴀᴛ ᴛɪᴛʟᴇ: {msg.chat.title} \nᴄʜᴀᴛ ᴜɴ: @{msg.chat.username} \nᴄʜᴀᴛ ɪᴅ: {chat_id} \n\nᴀᴅᴅᴇᴅ @{BOT_USERNAME} !!",
+            )
+    
+        # Send welcome message with BOT_PIC when added to group
+        try:
+            await PbxBot.app.send_photo(
+                chat_id,
+                photo=Config.BOT_PIC,
+                has_spoiler=True
+                caption=f"ᴛʜᴀɴᴋ ʏᴏᴜ ꜰᴏʀ ᴀᴅᴅɪɴɢ @{BOT_USERNAME} ᴛᴏ ʏᴏᴜʀ ɢʀᴏᴜᴘ! 🎉\n\nᴛᴏ ᴇɴᴊᴏʏ ꜱᴇᴀᴍʟᴇꜱꜱ, ʟᴀɢ-ꜰʀᴇᴇ ᴍᴜꜱɪᴄ ꜱᴛʀᴇᴀᴍɪɴɢ, ᴘʟᴇᴀꜱᴇ ᴘʀᴏᴍᴏᴛᴇ ᴍᴇ ᴛᴏ ᴀᴅᴍɪɴ ᴡɪᴛʜ ᴛʜᴇꜱᴇ ᴘᴇʀᴍɪꜱꜱɪᴏɴꜱ:\n- ᴍᴀɴᴀɢᴇ ᴠᴏɪᴄᴇ ᴄʜᴀᴛꜱ\n- ᴅᴇʟᴇᴛᴇ ᴍᴇꜱꜱᴀɢᴇꜱ\n- ɪɴᴠɪᴛᴇ ᴜꜱᴇʀꜱ ᴠɪᴀ ʟɪɴᴋ\n\nᴏɴᴄᴇ ᴅᴏɴᴇ, ᴅɪᴠᴇ ɪɴᴛᴏ ʏᴏᴜʀ ꜰᴀᴠᴏʀɪᴛᴇ ᴛᴜɴᴇꜱ ᴡɪᴛʜᴏᴜᴛ ɪɴᴛᴇʀʀᴜᴘᴛɪᴏɴꜱ! 🎶",
+            )
+        except Exception as e:
+            LOGS.error(f"ᴇʀʀᴏʀ ꜱᴇɴᴅɪɴɢ ᴡᴇʟᴄᴏᴍᴇ ᴍᴇꜱꜱᴀɢᴇ ᴛᴏ ɴᴇᴡ ᴄʜᴀᴛ {chat_id}: {str(e)}")
+    
+    # Handle bot being removed from group
+    if msg.left_chat_member and msg.left_chat_member.id == PbxBot.app.id:
+        await db.remove_chat(chat_id)
+        
+        if Config.LOGGER_ID:
+            await PbxBot.logit(
+                "leftchat",
+                f"**⤷ ᴄʜᴀᴛ ᴛɪᴛʟᴇ:** {msg.chat.title} \n**⤷ ᴄʜᴀᴛ ᴜɴ:** @{msg.chat.username or None} \n**⤷ ᴄʜᴀᴛ ɪᴅ:** `{chat_id}` \n__⤷ ʀᴇᴍᴏᴠᴇᴅ @{BOT_USERNAME} !!__",
+            )
+        else:
+            LOGS.info(
+                f"#ʟᴇꜰᴛᴄʜᴀᴛ: \n\nᴄʜᴀᴛ ᴛɪᴛʟᴇ: {msg.chat.title} \nᴄʜᴀᴛ ᴜɴ: @{msg.chat.username} \nᴄʜᴀᴛ ɪᴅ: {chat_id} \n\nʀᴇᴍᴏᴠᴇᴅ @{BOT_USERNAME} !!",
             )
     
     await msg.continue_propagation()
