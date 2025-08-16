@@ -40,7 +40,7 @@ class Config(object):
     
     YOUR_API_URL = getenv("YOUR_API_URL", "")        # Your custom API URL
     
-    COOKIES_URL = getenv("COOKIES_URL", "https://raw.githubusercontent.com/")  # Cookies file link (if required)
+    COOKIES_URL = getenv("COOKIES_URL", "")  # Cookies file link (if required)
     
     USE_API = getenv("USE_API", "False").lower() == "true"            # True = Stream on api
     
