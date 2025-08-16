@@ -4,7 +4,7 @@ services:
     env: python
     plan: free
     buildCommand: pip install -r requirements.txt
-    startCommand: python __main__.py
+    startCommand: bash start
     envVars:
       - key: API_HASH
         value: your api hash
